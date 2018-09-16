@@ -2,7 +2,7 @@
 
 In this project, I have used Double DQN to train an agent to navigate in a square arena and collect yellow bananas.
 
-[![Banana](https://github.com/anguillanneuf/deep-reinforcement-learning/blob/dqn/p1_navigation/Screen%20Shot%202018-08-27%20at%2011.38.41%20AM.png)](https://youtu.be/mG1daIuP2CU) 
+[![Banana](https://github.com/anguillanneuf/deep-reinforcement-learning/blob/master/p1_navigation/Screen%20Shot%202018-08-27%20at%2011.38.41%20AM.png)](https://youtu.be/mG1daIuP2CU) 
 
 The environment is set up so that the agent gets a reward of +1 for collecting a yellow banana, and a reward of -1 for collecting a blue banana. The goal is to collect as many yellow bananas as possible while avoiding blue bananas.
 
@@ -55,7 +55,7 @@ In terms of my online and target action-value function Q and Q', they share the 
 
 As presented in `Navigation.ipynb`, the environment was solved in 386 episodes with	an average score of 13.02 calculated from a score window of size 100. The plot below shows the improvement of the average scores during training. 
 
-![Plot](https://github.com/anguillanneuf/deep-reinforcement-learning/blob/dqn/p1_navigation/PlotOfReward.png)
+![Plot](https://github.com/anguillanneuf/deep-reinforcement-learning/blob/master/p1_navigation/PlotOfReward.png)
 
 ## Ideas for Future Work
 
