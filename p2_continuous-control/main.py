@@ -67,9 +67,6 @@ def main():
             torch.save(agent.critic_local.state_dict(), 'checkpoint_critic.pth')
             break
 
-    with open('scores.p', 'wb') as f:
-        pickle.dump(scores)
-
     env.close()
 
     return
