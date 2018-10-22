@@ -13,8 +13,8 @@ BUFFER_SIZE = int(1e6)  # replay buffer size
 BATCH_SIZE = 1024       # minibatch size
 GAMMA = 0.99            # discount factor
 TAU = 1e-3              # for soft update of target parameters
-LR_ACTOR = 5e-4         # learning rate of the actor
-LR_CRITIC = 9e-4        # learning rate of the critic
+LR_ACTOR = 3e-4         # learning rate of the actor
+LR_CRITIC = 6e-4        # learning rate of the critic
 WEIGHT_DECAY = 0e-9     # L2 weight decay
 
 NUM_AGENTS = 20
