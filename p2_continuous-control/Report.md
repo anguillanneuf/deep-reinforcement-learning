@@ -32,8 +32,8 @@ For episode=1, M do
         If the size of R is greater than BUFFER_SIZE
         Sample a random minibatch of BATCH_SIZE in R
         
-        Obtain A_t from target actor network μ' and s_(t+1)
-        Obtain r_(t+1)' from target critic network Q', A_t, and s_(t+1)
+        Obtain a_(t+1)' from target actor network μ' and s_(t+1)
+        Obtain r_(t+1)' from target critic network Q', a_(t+1)', and s_(t+1)
         Set projected reward y_t = r_t + GAMMA * (r_(t+1)')
         Obtain expected local reward from local critic network Q, (a_t + η), and s_t
         Calculate critic loss Lc using mean squared error of y_t and local reward
