@@ -214,17 +214,21 @@ class Node:
 
     def next(self, temperature=1.0):
         """
+        Args:
+            temperature: a parameter used to choose an action. When t is close
+            to 0, we choose an action with the largest visit count.
         Returns:
             tuple: next state as a node, a tuple of -current score, -current
-            policy output score, probability, policy output probabilities
+            policy output score, probability, probabilities associated with
+            each available move
         """
         if self.game.score is not None:
             raise ValueError(
-                'game has ended with score {0:d}'.format(self.game.score))
+                'Game has ended with score {0:d}'.format(self.game.score))
 
         if not self.child:
             print(self.game.state)
-            raise ValueError('no children found and game hasn\'t ended')
+            raise ValueError('No children found and game hasn\'t ended')
 
         child = self.child
 
@@ -236,6 +240,8 @@ class Node:
                 "inf") else 0 for c in child.values()], device=device)
 
         else:
+            # If there are no winning moves, choose an action
+            # based on visit count.
             # Divide things by maxN for numerical stability.
             maxN = max(node.N for node in child.values()) + 1
             prob = torch.tensor([(node.N / maxN) ** (1 / temperature)
