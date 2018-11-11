@@ -6,12 +6,14 @@ from torch.autograd import Variable
 import numpy as np
 
 def transpose_list(mylist):
+    """Creates a list where each item is an element from the zipped list."""
     return list(map(list, zip(*mylist)))
 
 def transpose_to_tensor(input_list):
+    """Creates a list of tensors where each tensor is an element from the
+    zipped list. It has a length of its original element"""
     make_tensor = lambda x: torch.tensor(x, dtype=torch.float)
     return list(map(make_tensor, zip(*input_list)))
-
 
 # https://github.com/ikostrikov/pytorch-ddpg-naf/blob/master/ddpg.py#L11
 def soft_update(target, source, tau):

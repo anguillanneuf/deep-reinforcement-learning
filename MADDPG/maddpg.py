@@ -15,10 +15,12 @@ class MADDPG:
         super(MADDPG, self).__init__()
 
         # critic input = obs_full + actions = 14+2+2+2=20
-        self.maddpg_agent = [DDPGAgent(14, 16, 8, 2, 20, 32, 16), 
-                             DDPGAgent(14, 16, 8, 2, 20, 32, 16), 
+        # in_actor=14, hidden_in_actor=16, hidden_out_actor=8, out_actor=2,
+        # in_critic=20, hidden_in_critic=32, hidden_out_critic=16,
+        self.maddpg_agent = [DDPGAgent(14, 16, 8, 2, 20, 32, 16),
+                             DDPGAgent(14, 16, 8, 2, 20, 32, 16),
                              DDPGAgent(14, 16, 8, 2, 20, 32, 16)]
-        
+
         self.discount_factor = discount_factor
         self.tau = tau
         self.iter = 0
@@ -34,12 +36,24 @@ class MADDPG:
         return target_actors
 
     def act(self, obs_all_agents, noise=0.0):
-        """get actions from all agents in the MADDPG object"""
+        """get actions from all agents in the MADDPG object
+
+        args:
+            obs_all_agents: (3, parallel_envs, 14)
+        returns:
+            a list of shape (3, parallel_envs, 2)
+        """
         actions = [agent.act(obs, noise) for agent, obs in zip(self.maddpg_agent, obs_all_agents)]
         return actions
 
     def target_act(self, obs_all_agents, noise=0.0):
-        """get target network actions from all the agents in the MADDPG object """
+        """get target network actions from all the agents in the MADDPG object
+
+        args:
+            obs_all_agents: (3, parallel_envs, 14)
+        returns:
+            a list of shape (3, parallel_envs, 2)
+        """
         target_actions = [ddpg_agent.target_act(obs, noise) for ddpg_agent, obs in zip(self.maddpg_agent, obs_all_agents)]
         return target_actions
 
@@ -49,24 +63,28 @@ class MADDPG:
         # need to transpose each element of the samples
         # to flip obs[parallel_agent][agent_number] to
         # obs[agent_number][parallel_agent]
-        obs, obs_full, action, reward, next_obs, next_obs_full, done = map(transpose_to_tensor, samples)
+        obs, obs_full, action, reward, next_obs, next_obs_full, done = \
+            map(transpose_to_tensor, samples)
 
         obs_full = torch.stack(obs_full)
         next_obs_full = torch.stack(next_obs_full)
-        
+
         agent = self.maddpg_agent[agent_number]
         agent.critic_optimizer.zero_grad()
 
-        #critic loss = batch mean of (y- Q(s,a) from target network)^2
-        #y = reward of this timestep + discount * Q(st+1,at+1) from target network
+        # critic loss = batch mean of (y - Q(s,a) from target network)^2
+        # y = reward of this timestep + discount * Q(st+1,at+1) from target network
         target_actions = self.target_act(next_obs)
+        # torch.cat(, dim=1) means the number of items in dim=1 stays unchanged
+        # torch.cat(Tensor(3,4,2),dim=1) gives Tensor(6,4)
         target_actions = torch.cat(target_actions, dim=1)
-        
+        # torch.cat((Tensor(4,14).t(), Tensor(6,4)), dim=1) gives Tensor(20,4)
         target_critic_input = torch.cat((next_obs_full.t(),target_actions), dim=1).to(device)
-        
+
         with torch.no_grad():
+            # q_next has shape (16, 4)
             q_next = agent.target_critic(target_critic_input)
-        
+
         y = reward[agent_number].view(-1, 1) + self.discount_factor * q_next * (1 - done[agent_number].view(-1, 1))
         action = torch.cat(action, dim=1)
         critic_input = torch.cat((obs_full.t(), action), dim=1).to(device)
@@ -83,15 +101,18 @@ class MADDPG:
         # make input to agent
         # detach the other agents to save computation
         # saves some time for computing derivative
+        # (3,4,2)
         q_input = [ self.maddpg_agent[i].actor(ob) if i == agent_number \
                    else self.maddpg_agent[i].actor(ob).detach()
                    for i, ob in enumerate(obs) ]
-                
+
+        # (6,4)
         q_input = torch.cat(q_input, dim=1)
         # combine all the actions and observations for input to critic
         # many of the obs are redundant, and obs[1] contains all useful information already
+        # (14+6,4)
         q_input2 = torch.cat((obs_full.t(), q_input), dim=1)
-        
+
         # get the policy gradient
         actor_loss = -agent.critic(q_input2).mean()
         actor_loss.backward()
@@ -111,10 +132,3 @@ class MADDPG:
         for ddpg_agent in self.maddpg_agent:
             soft_update(ddpg_agent.target_actor, ddpg_agent.actor, self.tau)
             soft_update(ddpg_agent.target_critic, ddpg_agent.critic, self.tau)
-            
-            
-            
-
-
-
-
