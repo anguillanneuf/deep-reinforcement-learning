@@ -17,8 +17,8 @@ class MADDPG:
         # critic input = obs_full + actions = 24 + 24 + 2 + 2
         # in_actor=24, hidden_in_actor=16, hidden_out_actor=8, out_actor=2,
         # in_critic=52, hidden_in_critic=32, hidden_out_critic=16,
-        self.maddpg_agent = [DDPGAgent(24, 256, 32, 2, 52, 512, 64),
-                             DDPGAgent(24, 256, 32, 2, 52, 512, 64)]
+        self.maddpg_agent = [DDPGAgent(24, 256, 128, 2, 52, 256, 128),
+                             DDPGAgent(24, 256, 128, 2, 52, 256, 128)]
 
         self.discount_factor = discount_factor
         self.tau = tau
@@ -49,7 +49,9 @@ class MADDPG:
             action = agent.act(state, noise)
             actions.append(action)
 
-        return np.vstack(actions[i].detach().numpy() for i in range(2))
+        actions = np.vstack(actions[i].detach().numpy() for i in range(2))
+        actions = np.clip(actions, -1, 1)
+        return actions
 
     def target_act(self, states, noise=0.0):
         """get target network actions from all agents in the MADDPG object
@@ -61,8 +63,9 @@ class MADDPG:
         target_actions = []
 
         for agent, state in zip(self.maddpg_agent, states):
-            target_actions.append(agent.target_act(state, noise))
-
+            temp = agent.target_act(state, noise)
+            temp = torch.clamp(temp, -1, 1)
+            target_actions.append(temp)
         return target_actions
 
     def update(self, samples, agent_number, logger):

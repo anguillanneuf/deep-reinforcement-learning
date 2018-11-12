@@ -21,14 +21,14 @@ def main():
 
     seeding()
 
-    number_of_episodes = 3000
+    number_of_episodes = 8000
     episode_length     = 1000
-    batchsize          = 512
+    batchsize          = 256
     save_interval      = 1000
     rewards_deque      = deque(maxlen=100)
     rewards_all        = []
-    noise              = 2
-    noise_reduction    = 0.9999
+    noise              = 1.0
+    noise_reduction    = 1.0
     episode_per_update = 10
 
     log_path = os.getcwd() + "/log"
@@ -49,12 +49,11 @@ def main():
     brain_name  = env.brain_names[0]
     brain       = env.brains[brain_name]
 
-    buffer      = ReplayBuffer(int(1e4))
+    buffer      = ReplayBuffer(int(1e5))
 
     # initialize policy and critic
     maddpg = MADDPG()
     logger = SummaryWriter(log_dir=log_path)
-    max_scores_deque = deque(maxlen=100)
 
     # ------------------------------ training ------------------------------ #
     # show progressbar
@@ -85,8 +84,12 @@ def main():
         states = env_info.vector_observations
 
         for episode_t in range(episode_length):
+            # reset the OUNoise for each agent.
+            for i in range(2):
+                maddpg.maddpg_agent[i].noise.reset()
 
             actions = maddpg.act(states, noise=noise)
+            actions = np.clip(actions, -1, 1)
             env_info = env.step(actions)[brain_name]
             noise *= noise_reduction
 
@@ -105,24 +108,25 @@ def main():
             if any(dones):
                 break
 
-        # update the local and target network 20 times every 10 episodes
-        if len(buffer) > batchsize and episode % episode_per_update == 0:
+        # update the local and target network
+        if len(buffer) > batchsize * 2:
             # update the local network
-            for _ in range(20):
+            for _ in range(10):
                 for a_i in range(2):
                     samples = buffer.sample(batchsize)
                     maddpg.update(samples, a_i, logger)
             # soft update the target network
             maddpg.update_targets()
 
-        max_scores_deque.append(np.max(rewards_this_episode))
-        average_score = np.mean(max_scores_deque)
+        rewards_all.append(rewards_this_episode)
+        rewards_deque.append(np.max(rewards_this_episode))
+        average_score = np.mean(rewards_deque)
 
         # --------------------- Logging for TensorBoard --------------------- #
-        for a_i, a_reward in enumerate(rewards_this_episode):
-            logger.add_scalar(
-                'agent%i/reward' % a_i, a_reward, episode)
-
+        logger.add_scalars('rewards',
+                            {'agent0': rewards_this_episode[0],
+                             'agent1': rewards_this_episode[1]},
+                           episode)
         logger.add_scalars('global',
                            {'score': np.max(rewards_this_episode),
                             'average_score': average_score},

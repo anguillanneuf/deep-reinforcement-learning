@@ -12,10 +12,7 @@ class Network(nn.Module):
     def __init__(self, input_dim, hidden_in_dim, hidden_out_dim, output_dim, actor=False):
         super(Network, self).__init__()
 
-        """self.input_norm = nn.BatchNorm1d(input_dim)
-        self.input_norm.weight.data.fill_(1)
-        self.input_norm.bias.data.fill_(0)"""
-
+        # self.bn1 = nn.BatchNorm2d(input_dim)
         self.fc1 = nn.Linear(input_dim, hidden_in_dim)
         self.fc2 = nn.Linear(hidden_in_dim, hidden_out_dim)
         self.fc3 = nn.Linear(hidden_out_dim, output_dim)
@@ -31,14 +28,14 @@ class Network(nn.Module):
     def forward(self, x):
         if self.actor:
             # actor network returns a vector (2,)
+            # x = self.bn1(x)
             h1 = self.nonlin(self.fc1(x))
             h2 = self.nonlin(self.fc2(h1))
-            h3 = (self.fc3(h2))
-            return torch.tanh(h3)
+            return torch.tanh(self.fc3(h2))
 
         else:
             # critic network simply returns a number
+            # x = self.bn1(x)
             h1 = self.nonlin(self.fc1(x))
             h2 = self.nonlin(self.fc2(h1))
-            h3 = (self.fc3(h2))
-            return h3
+            return self.fc3(h2)
