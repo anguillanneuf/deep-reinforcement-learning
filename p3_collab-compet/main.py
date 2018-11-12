@@ -21,7 +21,7 @@ def main():
 
     seeding()
 
-    number_of_episodes = 8000
+    number_of_episodes = 40000
     episode_length     = 1000
     batchsize          = 256
     save_interval      = 1000
@@ -89,7 +89,6 @@ def main():
                 maddpg.maddpg_agent[i].noise.reset()
 
             actions = maddpg.act(states, noise=noise)
-            actions = np.clip(actions, -1, 1)
             env_info = env.step(actions)[brain_name]
             noise *= noise_reduction
 
