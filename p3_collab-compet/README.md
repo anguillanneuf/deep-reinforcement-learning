@@ -39,7 +39,9 @@ The environment is considered solved, when the average (over 100 episodes) of th
 
 ### Instructions
 
-Follow the instructions in `Tennis.ipynb` to get started with training your own agent!  
+Follow the instructions in `Tennis.ipynb` to get a sense of the Tennis environment. To train your own agent, you may use the provided shell script `run_training.sh`.  
+
+Doing `./run_training.sh` on the command line lets you start with fresh `log/` and `model_dir/` directories. If you encounter permission issues, try `chmod +x run_training.sh` to change mode. 
 
 ### (Optional) Challenge: Crawler Environment
 
