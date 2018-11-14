@@ -50,7 +50,6 @@ class MADDPG:
             actions.append(action)
 
         actions = np.vstack(actions[i].detach().numpy() for i in range(2))
-        actions = np.clip(actions, -1, 1)
         return actions
 
     def target_act(self, states, noise=0.0):
@@ -64,7 +63,6 @@ class MADDPG:
 
         for agent, state in zip(self.maddpg_agent, states):
             temp = agent.target_act(state, noise)
-            temp = torch.clamp(temp, -1, 1)
             target_actions.append(temp)
         return target_actions
 

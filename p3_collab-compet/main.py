@@ -21,7 +21,7 @@ def main():
 
     seeding()
 
-    number_of_episodes = 40000
+    number_of_episodes = 20000
     episode_length     = 1000
     batchsize          = 256
     save_interval      = 1000
@@ -29,7 +29,6 @@ def main():
     rewards_all        = []
     noise              = 1.0
     noise_reduction    = 1.0
-    episode_per_update = 10
 
     log_path = os.getcwd() + "/log"
     model_dir = os.getcwd() + "/model_dir"
@@ -108,9 +107,9 @@ def main():
                 break
 
         # update the local and target network
-        if len(buffer) > batchsize * 2:
+        if len(buffer) > batchsize:
             # update the local network
-            for _ in range(10):
+            for _ in range(5):
                 for a_i in range(2):
                     samples = buffer.sample(batchsize)
                     maddpg.update(samples, a_i, logger)
@@ -146,7 +145,7 @@ def main():
                     save_dict_list,
                     os.path.join(model_dir, 'episode-{}.pt'.format(episode)))
 
-            if average_score >= 0.5:
+            if average_score >= 3.0:
                 print('\nEnvironment solved in {} episodes!'.format(episode-100))
                 print('\nAverage Score: {:.2f}'.format(average_score))
                 break
