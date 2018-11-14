@@ -1,5 +1,9 @@
 # Project Report: Collaboration and Competition
 
+![alt text][collab-compet-gif]
+
+Here is a [video](https://youtu.be/YkIKTJ8ZUU0) showing my agent in the reacher environment (the second version with 20 arms). 
+
 ## Learning Algorithm
 
 The learning algorithm used in the project is adapted from the lab [`MADDPG`](https://github.com/anguillanneuf/deep-reinforcement-learning/tree/master/MADDPG), which stands for Multi-Agent Deep Deterministic Policy Gradient method. It is an extension of the DDPG method. Instead of training one actor and critic network for a single agent, MADDPG trains pairs of actor and critic networks for multiple agents. Each agent decides which actions to take and predicts its own score in an episode. In order to decide the actions, the agent only uses the states returned from the Unity environment. But in order to predict scores, the agent makes use of both the states returned from the environment and the actions they select. 
@@ -73,4 +77,5 @@ I didn't get `torch.nn.BatchNorm1d` to work in `networkforall.py`. I can see tha
 
 Something else I want to try is setting up the Unity environment in parallel so that I can fill up the replay buffer faster, and train the agents to learn different strategies instead of getting comfortable and stuck in one strategy. The code sample for parallel training in the lab looks like nothing I recognize at the moment, but I can see how parallel training could be key to solving the Soccer game, which I really want to do.  
 
+[collab-compet-gif]: https://github.com/anguillanneuf/deep-reinforcement-learning/blob/master/p3_collab-compet/plots/cc.gif "MADDPG"
 [rewards]: https://github.com/anguillanneuf/deep-reinforcement-learning/blob/master/p3_collab-compet/plots/scores.png "Rewards"
