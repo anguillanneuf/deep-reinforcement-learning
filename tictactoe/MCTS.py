@@ -205,7 +205,7 @@ class Node:
 
             # Update U for all sibling nodes using
             # U = V + c * prob * sqrt(N_tot) / (1 + N)
-            for sibling in mother.child.val ues():
+            for sibling in mother.child.values():
                 if abs(sibling.U) != float("inf"):
                     sibling.U = sibling.V + c * \
                         float(sibling.prob) * sqrt(mother.N) / (1 + sibling.N)

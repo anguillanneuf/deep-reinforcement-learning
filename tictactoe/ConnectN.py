@@ -15,12 +15,12 @@ def get_runs(v, i):
         i: player id
 
     Returns:
-        Start index, end index, lenght.
+        Numpy arrays of start indices, end indices, length indices.
 
     Example:
 
-    >>> get_runs([0,0,1,1,1,0,0],1)
-    2],[5],[3]
+    >>> get_runs(np.array([0,0,1,1,1,0,0]),1)
+    (array([2]), array([5]), array([3]))
     """
     bounded = np.hstack(([0], (v == i).astype(int), [0]))
     difs = np.diff(bounded)
@@ -30,7 +30,7 @@ def get_runs(v, i):
 
 
 def in_a_row(v, N, i):
-    """Checks for a victory for a particular player.
+    """Checks for victory by a particular player.
 
     Args:
         v: input vector
@@ -39,6 +39,11 @@ def in_a_row(v, N, i):
 
     Returns:
         If the player wins, return true; otherwise, returns false.
+
+    Example:
+
+    >> in_a_row(np.array([1,1,1]), 3, 1)
+    True
     """
     if len(v) < N:
         return False
@@ -50,7 +55,15 @@ def in_a_row(v, N, i):
 def get_lines(matrix, loc):
     """Returns lines that pass though `loc`. Matrix can be indices.
 
-    Examples:
+    Args:
+        matrix: a N by N matrix representing the board
+        loc: a tuple of loc coordinates
+
+    Returns:
+        Numerical values on the horizontal, vertical, and diagonal lines that
+        pass through loc.
+
+    Examples 1:
 
     >>> m = np.array([[0, 0, 1],
     >>>               [1, 2, 4],
@@ -58,10 +71,11 @@ def get_lines(matrix, loc):
     >>> get_lines(m, (0, 1))
     (array([0, 2, 3]), array([0, 0, 1]), array([0, 4]), array([0, 1]))
 
+    Example 2:
     >>> m.shape
     (3, 3)
     >>> ind = np.indices(m.shape)
-    >>> ind
+    >>> ind # ind.shape = (2,3,3)
     array([[[0, 0, 0],
             [1, 1, 1],
             [2, 2, 2]],
@@ -132,9 +146,11 @@ def get_lines(matrix, loc):
 
 class ConnectN:
     def __init__(self, size, N, pie_rule=False):
+        """Board is initialized with all zeros. Players alternate between
+        playing +1 and -1 on the board. """
         self.size = size
         self.w, self.h = size
-        self.N = N
+        self.N = N                                    # strip length to win
 
         if self.w < 0 or self.h < 0 or self.N < 2 or \
                 (self.N > self.w and self.N > self.h):
@@ -146,7 +162,7 @@ class ConnectN:
         self.state = np.zeros(size, dtype=np.float)
         self.player = 1
         self.last_move = None
-        self.n_moves = 0
+        self.n_moves = 0                              # total moves
         self.pie_rule = pie_rule
         self.switched_side = False
 
@@ -210,7 +226,7 @@ class ConnectN:
 
             # get the start and end location
             winning = (runs >= self.N)
-            print(winning)
+            # If none of the strips for the player is >= required strip length
             if not np.any(winning):
                 continue
 
@@ -224,6 +240,7 @@ class ConnectN:
 
     def move(self, loc):
         """Tries to make a suggested next move.
+
         Args:
             loc: A suggested next move.
 
