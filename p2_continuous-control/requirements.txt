@@ -22,7 +22,7 @@ gast==0.2.0
 glfw==1.7.0
 grpcio==1.11.0
 -e git+https://github.com/openai/gym.git@70ca46a9685de333493722ee74d0cd51782b2b44#egg=gym
-html5lib==0.9999999
+html5lib==0.99999999
 idna==2.7
 imageio==2.4.1
 ipykernel==4.9.0
